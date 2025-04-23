@@ -14,14 +14,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.navigationcomponenttest.model.ItemsRepository
 import com.example.navigationcomponenttest.ui.screens.AddItemRoute
 import com.example.navigationcomponenttest.ui.screens.ItemRoute
 import com.example.navigationcomponenttest.ui.screens.LocalNavController
 import com.example.navigationcomponenttest.ui.screens.add.AddItemScreen
 import com.example.navigationcomponenttest.ui.screens.items.ItemsScreen
 import com.example.navigationcomponenttest.ui.theme.NavigationComponentTestTheme
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var itemsRepository: ItemsRepository
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
