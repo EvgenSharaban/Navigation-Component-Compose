@@ -1,4 +1,4 @@
 package com.example.navigationcomponenttest.ui.screens
 
-const val ItemRoute = "items"
+const val ItemsRoute = "items"
 const val AddItemRoute = "add-item"
