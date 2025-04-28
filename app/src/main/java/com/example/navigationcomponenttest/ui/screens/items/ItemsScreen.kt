@@ -3,44 +3,69 @@ package com.example.navigationcomponenttest.ui.screens.items
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.navigationcomponenttest.ui.screens.AddItemRoute
 import com.example.navigationcomponenttest.ui.screens.LocalNavController
+import com.example.navigationcomponenttest.ui.screens.items.ItemsViewModel.ScreenState
 
 @Composable
 fun ItemsScreen() {
+    val viewModel: ItemsViewModel = hiltViewModel()
     val navController = LocalNavController.current
-    ItemsContent(
-        onLaunchAddItemScreen = {
-            navController.navigate(AddItemRoute)
-        }
-    )
+    val screenState = viewModel.stateFlow.collectAsState()
+    Scaffold { paddingValues ->
+        ItemsContent(
+            getScreenState = { screenState.value },
+            onLaunchAddItemScreen = {
+                navController.navigate(AddItemRoute)
+            },
+            modifier = Modifier.padding(paddingValues)
+        )
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ItemsContent(
-    onLaunchAddItemScreen: () -> Unit
+    getScreenState: () -> ScreenState,
+    onLaunchAddItemScreen: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize()
     ) {
-        Text(
-            text = "Items screen",
-            modifier = Modifier.align(Alignment.Center),
-            fontSize = 20.sp
-        )
+        when (val screenState = getScreenState()) {
+            ScreenState.Loading -> {
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
+            }
+
+            is ScreenState.Success -> {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    items(screenState.items) {
+                        Text(
+                            text = it,
+                            modifier = Modifier.padding(12.dp)
+                        )
+                    }
+                }
+            }
+        }
         FloatingActionButton(
             onClick = onLaunchAddItemScreen,
             modifier = Modifier
@@ -56,6 +81,7 @@ fun ItemsContent(
 @Composable
 private fun ItemScreenPreview() {
     ItemsContent(
+        getScreenState = { ScreenState.Loading },
         onLaunchAddItemScreen = {}
     )
 }
