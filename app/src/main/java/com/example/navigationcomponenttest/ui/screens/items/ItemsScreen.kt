@@ -14,15 +14,35 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.navigationcomponenttest.R
+import com.example.navigationcomponenttest.ui.scaffold.AppFloatingActionButton
+import com.example.navigationcomponenttest.ui.scaffold.AppScaffold
+import com.example.navigationcomponenttest.ui.screens.AddItemRoute
+import com.example.navigationcomponenttest.ui.screens.LocalNavController
 import com.example.navigationcomponenttest.ui.screens.items.ItemsViewModel.ScreenState
 
 @Composable
 fun ItemsScreen() {
     val viewModel: ItemsViewModel = hiltViewModel()
     val screenState = viewModel.stateFlow.collectAsState()
-    ItemsContent(
-        getScreenState = { screenState.value },
-    )
+
+    AppScaffold(
+        titleResId = R.string.items_screen,
+        showNavigationUp = false,
+        fabContent = {
+            val navController = LocalNavController.current
+            AppFloatingActionButton(
+                onClick = { navController.navigate(AddItemRoute) }
+            )
+        }
+    ) { paddingValue ->
+        ItemsContent(
+            getScreenState = { screenState.value },
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValue)
+        )
+    }
 }
 
 @Composable

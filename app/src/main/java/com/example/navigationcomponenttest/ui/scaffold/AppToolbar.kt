@@ -1,6 +1,4 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
-package com.example.navigationcomponenttest.ui.screens
+package com.example.navigationcomponenttest.ui.scaffold
 
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
@@ -14,27 +12,23 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import com.example.navigationcomponenttest.ui.screens.LocalNavController
 
-sealed class NavigateUpAction {
-    data object Hidden : NavigateUpAction()
-    data class Visible(
-        val onClick: () -> Unit,
-    ) : NavigateUpAction()
-}
-
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppToolbar(
     @StringRes titleRes: Int,
-    navigateUpAction: NavigateUpAction
+    showNavigationUp: Boolean,
 ) {
     CenterAlignedTopAppBar(
         title = {
             Text(text = stringResource(titleRes))
         },
         navigationIcon = {
-            if (navigateUpAction is NavigateUpAction.Visible) {
+            if (showNavigationUp) {
+                val navController = LocalNavController.current
                 IconButton(
-                    onClick = navigateUpAction.onClick
+                    onClick = { navController.navigateUp() }
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Default.ArrowBack,
