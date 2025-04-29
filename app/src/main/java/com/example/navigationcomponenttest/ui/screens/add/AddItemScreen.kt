@@ -22,11 +22,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.navigationcomponenttest.R
+import com.example.navigationcomponenttest.ui.EventConsumer
 import com.example.navigationcomponenttest.ui.scaffold.AppScaffold
 import com.example.navigationcomponenttest.ui.screens.AddItemRoute
-import com.example.navigationcomponenttest.ui.screens.EventConsumer
 import com.example.navigationcomponenttest.ui.screens.LocalNavController
 import com.example.navigationcomponenttest.ui.screens.add.AddItemViewModel.ScreenState
+import com.example.navigationcomponenttest.ui.screens.routClass
 
 @Composable
 fun AddItemScreen() {
@@ -49,7 +50,7 @@ fun AddItemScreen() {
     }
 
     EventConsumer(viewModel.exitChannel) {
-        if (navController.currentBackStackEntry?.destination?.route == AddItemRoute) {
+        if (navController.currentBackStackEntry.routClass() == AddItemRoute::class) {
             navController.popBackStack()
         }
     }

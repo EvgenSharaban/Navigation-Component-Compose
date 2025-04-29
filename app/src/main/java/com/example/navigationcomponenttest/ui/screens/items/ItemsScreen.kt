@@ -1,10 +1,12 @@
 package com.example.navigationcomponenttest.ui.screens.items
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,6 +20,7 @@ import com.example.navigationcomponenttest.R
 import com.example.navigationcomponenttest.ui.scaffold.AppFloatingActionButton
 import com.example.navigationcomponenttest.ui.scaffold.AppScaffold
 import com.example.navigationcomponenttest.ui.screens.AddItemRoute
+import com.example.navigationcomponenttest.ui.screens.EditItemRout
 import com.example.navigationcomponenttest.ui.screens.LocalNavController
 import com.example.navigationcomponenttest.ui.screens.items.ItemsViewModel.ScreenState
 
@@ -25,12 +28,12 @@ import com.example.navigationcomponenttest.ui.screens.items.ItemsViewModel.Scree
 fun ItemsScreen() {
     val viewModel: ItemsViewModel = hiltViewModel()
     val screenState = viewModel.stateFlow.collectAsState()
+    val navController = LocalNavController.current
 
     AppScaffold(
         titleResId = R.string.items_screen,
         showNavigationUp = false,
         fabContent = {
-            val navController = LocalNavController.current
             AppFloatingActionButton(
                 onClick = { navController.navigate(AddItemRoute) }
             )
@@ -38,6 +41,9 @@ fun ItemsScreen() {
     ) { paddingValue ->
         ItemsContent(
             getScreenState = { screenState.value },
+            onItemClicked = { index ->
+                navController.navigate(EditItemRout(index))
+            },
             modifier = Modifier
                 .fillMaxSize()
                 .padding(paddingValue)
@@ -48,7 +54,8 @@ fun ItemsScreen() {
 @Composable
 fun ItemsContent(
     getScreenState: () -> ScreenState,
-    modifier: Modifier = Modifier
+    onItemClicked: (Int) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier.fillMaxSize()
@@ -62,10 +69,13 @@ fun ItemsContent(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                 ) {
-                    items(screenState.items) {
+                    itemsIndexed(screenState.items) { index, item ->
                         Text(
-                            text = it,
-                            modifier = Modifier.padding(12.dp)
+                            text = item,
+                            modifier = Modifier
+                                .clickable { onItemClicked(index) }
+                                .fillMaxWidth()
+                                .padding(12.dp)
                         )
                     }
                 }
@@ -79,5 +89,6 @@ fun ItemsContent(
 private fun ItemScreenPreview() {
     ItemsContent(
         getScreenState = { ScreenState.Loading },
+        onItemClicked = { },
     )
 }

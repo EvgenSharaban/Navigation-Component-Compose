@@ -1,4 +1,4 @@
-package com.example.navigationcomponenttest.ui.screens
+package com.example.navigationcomponenttest.ui
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
