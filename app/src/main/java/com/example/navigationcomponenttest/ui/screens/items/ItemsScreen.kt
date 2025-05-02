@@ -18,8 +18,8 @@ import com.example.navigationcomponenttest.model.LoadResult
 import com.example.navigationcomponenttest.ui.components.LoadResultContent
 import com.example.navigationcomponenttest.ui.scaffold.AppFloatingActionButton
 import com.example.navigationcomponenttest.ui.scaffold.AppScaffold
-import com.example.navigationcomponenttest.ui.screens.AddItemRoute
-import com.example.navigationcomponenttest.ui.screens.EditItemRout
+import com.example.navigationcomponenttest.ui.screens.ItemsGraph.AddItemRoute
+import com.example.navigationcomponenttest.ui.screens.ItemsGraph.EditItemRout
 import com.example.navigationcomponenttest.ui.screens.LocalNavController
 import com.example.navigationcomponenttest.ui.screens.items.ItemsViewModel.ScreenState
 

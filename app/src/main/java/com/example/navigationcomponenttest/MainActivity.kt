@@ -14,14 +14,22 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import androidx.navigation.toRoute
-import com.example.navigationcomponenttest.ui.screens.AddItemRoute
-import com.example.navigationcomponenttest.ui.screens.EditItemRout
-import com.example.navigationcomponenttest.ui.screens.ItemsRoute
+import com.example.navigationcomponenttest.ui.screens.ItemsGraph
+import com.example.navigationcomponenttest.ui.screens.ItemsGraph.AddItemRoute
+import com.example.navigationcomponenttest.ui.screens.ItemsGraph.EditItemRout
+import com.example.navigationcomponenttest.ui.screens.ItemsGraph.ItemsRoute
 import com.example.navigationcomponenttest.ui.screens.LocalNavController
+import com.example.navigationcomponenttest.ui.screens.ProfileGraph
+import com.example.navigationcomponenttest.ui.screens.ProfileGraph.ProfileRoute
+import com.example.navigationcomponenttest.ui.screens.SettingsGraph
+import com.example.navigationcomponenttest.ui.screens.SettingsGraph.SettingsRoute
 import com.example.navigationcomponenttest.ui.screens.add.AddItemScreen
 import com.example.navigationcomponenttest.ui.screens.edit.EditItemScreen
 import com.example.navigationcomponenttest.ui.screens.items.ItemsScreen
+import com.example.navigationcomponenttest.ui.screens.profile.ProfileScreen
+import com.example.navigationcomponenttest.ui.screens.settings.SettingsScreen
 import com.example.navigationcomponenttest.ui.theme.NavigationComponentTestTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -52,14 +60,22 @@ fun NavApp() {
     ) {
         NavHost(
             navController = navController,
-            startDestination = ItemsRoute,
+            startDestination = ProfileGraph,
             modifier = Modifier.fillMaxSize()
         ) {
-            composable<ItemsRoute> { ItemsScreen() }
-            composable<AddItemRoute> { AddItemScreen() }
-            composable<EditItemRout> { entry ->
-                val route: EditItemRout = entry.toRoute()
-                EditItemScreen(route.index)
+            navigation<ItemsGraph>(startDestination = ItemsRoute) {
+                composable<ItemsRoute> { ItemsScreen() }
+                composable<AddItemRoute> { AddItemScreen() }
+                composable<EditItemRout> { entry ->
+                    val route: EditItemRout = entry.toRoute()
+                    EditItemScreen(route.index)
+                }
+            }
+            navigation<SettingsGraph>(startDestination = SettingsRoute) {
+                composable<SettingsRoute> { SettingsScreen() }
+            }
+            navigation<ProfileGraph>(startDestination = ProfileRoute) {
+                composable<ProfileRoute> { ProfileScreen() }
             }
         }
     }

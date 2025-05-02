@@ -64,5 +64,5 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.compose)
     implementation(libs.kotlinx.serialization.core)
-
+    implementation(libs.kotlinx.collections.immutable)
 }
