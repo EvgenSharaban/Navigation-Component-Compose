@@ -2,12 +2,14 @@ package com.example.navigationcomponenttest.ui.screens.action
 
 import android.widget.Toast
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.navigationcomponenttest.ui.EventConsumer
 import com.example.navigationcomponenttest.ui.components.ExceptionToMessageMapper
 import com.example.navigationcomponenttest.ui.components.LoadResultContent
 import com.example.navigationcomponenttest.ui.screens.LocalNavController
@@ -28,13 +30,22 @@ fun <State, Action> ActionScreen(
         ActionViewModel(delegate)
     }
     val navController = LocalNavController.current
-    EventConsumer(channel = viewModel.exitChanel) {
-        navController.popBackStack()
+    val screenState by viewModel.screenStateFlow.collectAsStateWithLifecycle(
+        minActiveState = Lifecycle.State.RESUMED
+    )
+    LaunchedEffect(screenState) {
+        screenState.exit?.let {
+            navController.popBackStack()
+            viewModel.onExitHandled()
+        }
     }
     val context = LocalContext.current
-    EventConsumer(channel = viewModel.errorChannel) { exception ->
-        val message = exceptionToMessageMapper.getUserMessage(exception, context)
-        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    LaunchedEffect(screenState) {
+        screenState.error?.let { exception ->
+            val message = exceptionToMessageMapper.getUserMessage(exception, context)
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+            viewModel.onErrorHandled()
+        }
     }
     val loadResult by viewModel.stateFlow.collectAsState()
     LoadResultContent(

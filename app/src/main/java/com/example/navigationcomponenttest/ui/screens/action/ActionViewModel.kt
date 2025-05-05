@@ -4,10 +4,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.navigationcomponenttest.model.LoadResult
 import com.example.navigationcomponenttest.model.tryUpdate
-import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ActionViewModel<State, Action>(
@@ -17,11 +16,8 @@ class ActionViewModel<State, Action>(
     private val _stateFlow = MutableStateFlow<LoadResult<State>>(LoadResult.Loading)
     val stateFlow: StateFlow<LoadResult<State>> = _stateFlow
 
-    private val _exitChannel = Channel<Unit>()
-    val exitChanel: ReceiveChannel<Unit> = _exitChannel
-
-    private val _errorChannel = Channel<Exception>()
-    val errorChannel: ReceiveChannel<Exception> = _errorChannel
+    private val _screenStateFlow = MutableStateFlow(ScreenState())
+    val screenStateFlow: StateFlow<ScreenState> = _screenStateFlow
 
     init {
         load()
@@ -45,10 +41,20 @@ class ActionViewModel<State, Action>(
                 delegate.execute(action)
                 goBack()
             } catch (e: Exception) {
-                _errorChannel.send(e)
+                _screenStateFlow.update { oldState ->
+                    oldState.copy(error = e)
+                }
                 hideProgress()
             }
         }
+    }
+
+    fun onExitHandled() {
+        _screenStateFlow.update { it.copy(exit = null) }
+    }
+
+    fun onErrorHandled() {
+        _screenStateFlow.update { it.copy(error = null) }
     }
 
     private fun showProgress() {
@@ -59,8 +65,8 @@ class ActionViewModel<State, Action>(
         _stateFlow.tryUpdate(delegate::hideProgress)
     }
 
-    private suspend fun goBack() {
-        _exitChannel.send(Unit)
+    private fun goBack() {
+        _screenStateFlow.update { it.copy(exit = Unit) }
     }
 
     interface Delegate<State, Action> {
@@ -69,5 +75,10 @@ class ActionViewModel<State, Action>(
         fun hideProgress(input: State): State
         suspend fun execute(action: Action)
     }
+
+    data class ScreenState(
+        val exit: Unit? = null,
+        val error: Exception? = null,
+    )
 
 }
