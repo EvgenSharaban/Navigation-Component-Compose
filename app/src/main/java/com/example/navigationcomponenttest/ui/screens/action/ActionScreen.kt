@@ -4,7 +4,6 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -12,7 +11,6 @@ import com.example.navigationcomponenttest.ui.EventConsumer
 import com.example.navigationcomponenttest.ui.components.ExceptionToMessageMapper
 import com.example.navigationcomponenttest.ui.components.LoadResultContent
 import com.example.navigationcomponenttest.ui.screens.LocalNavController
-import com.example.navigationcomponenttest.ui.screens.routClass
 
 data class ActionContentState<State, Action>(
     val state: State,
@@ -30,13 +28,8 @@ fun <State, Action> ActionScreen(
         ActionViewModel(delegate)
     }
     val navController = LocalNavController.current
-    val rememberedScreenRoute = remember {
-        navController.currentBackStackEntry.routClass()
-    }
     EventConsumer(channel = viewModel.exitChanel) {
-        if (rememberedScreenRoute == navController.currentBackStackEntry.routClass()) {
-            navController.popBackStack()
-        }
+        navController.popBackStack()
     }
     val context = LocalContext.current
     EventConsumer(channel = viewModel.errorChannel) { exception ->
