@@ -20,23 +20,43 @@ class ActionViewModel<State, Action>(
     private val _exitChannel = Channel<Unit>()
     val exitChanel: ReceiveChannel<Unit> = _exitChannel
 
+    private val _errorChannel = Channel<Exception>()
+    val errorChannel: ReceiveChannel<Exception> = _errorChannel
+
     init {
+        load()
+    }
+
+    fun load() {
         viewModelScope.launch {
-            val loadedState = delegate.loadState()
-            _stateFlow.value = LoadResult.Success(loadedState)
+            _stateFlow.value = LoadResult.Loading
+            _stateFlow.value = try {
+                LoadResult.Success(delegate.loadState())
+            } catch (e: Exception) {
+                LoadResult.Error(e)
+            }
         }
     }
 
     fun execute(action: Action) {
         viewModelScope.launch {
             showProgress()
-            delegate.execute(action)
-            goBack()
+            try {
+                delegate.execute(action)
+                goBack()
+            } catch (e: Exception) {
+                _errorChannel.send(e)
+                hideProgress()
+            }
         }
     }
 
     private fun showProgress() {
         _stateFlow.tryUpdate(delegate::showProgress)
+    }
+
+    private fun hideProgress() {
+        _stateFlow.tryUpdate(delegate::hideProgress)
     }
 
     private suspend fun goBack() {
@@ -46,6 +66,7 @@ class ActionViewModel<State, Action>(
     interface Delegate<State, Action> {
         suspend fun loadState(): State
         fun showProgress(input: State): State
+        fun hideProgress(input: State): State
         suspend fun execute(action: Action)
     }
 

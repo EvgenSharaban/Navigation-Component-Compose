@@ -1,12 +1,15 @@
 package com.example.navigationcomponenttest.ui.screens.action
 
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.navigationcomponenttest.ui.EventConsumer
+import com.example.navigationcomponenttest.ui.components.ExceptionToMessageMapper
 import com.example.navigationcomponenttest.ui.components.LoadResultContent
 import com.example.navigationcomponenttest.ui.screens.LocalNavController
 import com.example.navigationcomponenttest.ui.screens.routClass
@@ -21,6 +24,7 @@ fun <State, Action> ActionScreen(
     delegate: ActionViewModel.Delegate<State, Action>,
     content: @Composable (ActionContentState<State, Action>) -> Unit,
     modifier: Modifier = Modifier,
+    exceptionToMessageMapper: ExceptionToMessageMapper = ExceptionToMessageMapper.DEFAULT
 ) {
     val viewModel = viewModel<ActionViewModel<State, Action>> {
         ActionViewModel(delegate)
@@ -34,6 +38,11 @@ fun <State, Action> ActionScreen(
             navController.popBackStack()
         }
     }
+    val context = LocalContext.current
+    EventConsumer(channel = viewModel.errorChannel) { exception ->
+        val message = exceptionToMessageMapper.getUserMessage(exception, context)
+        Toast.makeText(context, message, Toast.LENGTH_LONG).show()
+    }
     val loadResult by viewModel.stateFlow.collectAsState()
     LoadResultContent(
         loadResult = loadResult,
@@ -45,5 +54,6 @@ fun <State, Action> ActionScreen(
             content(actionContentState)
         },
         modifier = modifier,
+        onTryAgainAction = viewModel::load,
     )
 }
